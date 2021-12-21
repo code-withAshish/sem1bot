@@ -1,8 +1,15 @@
 const { Bot, InlineKeyboard } = require("grammy");
-const data = require("./modules/crud");
-const score = require("./modules/score");
+const user = require("./models/user");
+const score = require("./models/score");
+const mongoose = require("mongoose");
 const bot = new Bot("5081423704:AAGbnWcdekZnd8b11os3WrnCkMQsH997-so");
-var board;
+mongoose
+  .connect("mongodb://localhost:27017/codebot", {
+    useNewUrlParser: true,
+  })
+  .then(() => {
+    console.log("Connected to Database");
+  });
 const approveKeyboard = new InlineKeyboard()
   .text("Approve ✅", "yes")
   .text("Reject ❌", "no")
@@ -12,6 +19,7 @@ const approveKeyboard = new InlineKeyboard()
 const scoreKeyboard = new InlineKeyboard()
   .text("Back", "back")
   .text("Send to channel", "send");
+var board = "";
 
 bot.command("start", (ctx) => {
   ctx.reply(
@@ -21,59 +29,66 @@ bot.command("start", (ctx) => {
 
 bot.on("message:text", (ctx) => {
   if (ctx.chat.type === "private") {
-    messageText =
-      "`" + ctx.message.text + "\n" + `-by ${ctx.from.first_name}` + "`";
-    messageSender = ctx.from.id;
+    var name =
+      ctx.from.first_name != undefined
+        ? ctx.from.first_name
+        : ctx.from.username;
 
+    ctx.reply("Please wait while we are checking your code...");
     ctx.api
-      .sendMessage("-1001515865371", messageText, {
+      .sendMessage("-1001515865371", ctx.message.text, {
         reply_markup: approveKeyboard,
         parse_mode: "MarkdownV2",
       })
       .then((e) => {
-        if (ctx.from.first_name != undefined)
-          data.saveMessage(
-            messageText,
-            messageSender,
-            e.message_id,
-            ctx.from.first_name
-          );
-        else
-          data.saveMessage(
-            messageText,
-            messageSender,
-            e.message_id,
-            ctx.from.username
-          );
+        user
+          .insertMany([
+            {
+              uname: name,
+              uID: ctx.from.id,
+              msgID: e.message_id,
+              msg: ctx.message.text,
+            },
+          ])
+          .then((x, err) => {
+            if (err) console.error(err);
+            console.log(x);
+          });
       });
   }
 });
 
 bot.callbackQuery("yes", async (ctx) => {
-  const query = data.findMessage(ctx.callbackQuery.message.message_id);
-  await ctx.api.sendMessage("@pcamcodehub", query.msg, {
-    parse_mode: "MarkdownV2",
-  });
-  score.increaseScore(query.name);
-  data.deleteMsg(ctx.callbackQuery.message.message_id);
   ctx.deleteMessage();
+  user
+    .findOneAndDelete({
+      msgID: ctx.callbackQuery.message.message_id,
+    })
+    .then((x) => {
+      ctx.api.sendMessage(x.uID, "Your code has been approved!\n\n");
+      var msg = "`" + x.msg + "\n" + `-by ${x.uname}` + "`";
+      ctx.api.sendMessage("@pcamcodehub", msg, {
+        parse_mode: "MarkdownV2",
+      });
+      userScore(x.uname);
+    });
 });
 
 bot.callbackQuery("no", async (ctx) => {
-  const query = data.findMessage(ctx.callbackQuery.message.message_id);
-  data.deleteMsg(ctx.callbackQuery.message.message_id);
-  await ctx.api.sendMessage(
-    query.chatID,
-    "Your program was not approved by the admin!!!\nPlease try again."
-  );
   ctx.deleteMessage();
+  user
+    .findOneAndDelete({ msgID: ctx.callbackQuery.message.message_id })
+    .then((x) => {
+      ctx.api.sendMessage(
+        x.uID,
+        "Your program has some errors,so admins have rejected it\nPlease try again!!!"
+      );
+      console.log("Code rejected");
+    });
 });
 
 bot.callbackQuery("score", async (ctx) => {
-  board = score.getScoreBoard();
-  ctx.reply(board, {
-    reply_markup: scoreKeyboard,
-  });
+  getScoreBoard(ctx);
 });
 
 bot.callbackQuery("back", (ctx) => {
@@ -88,3 +103,37 @@ bot.catch((err) => {
   console.log(err);
 });
 bot.start();
+
+function userScore(uname) {
+  score.findOne({ name: uname }).then((x) => {
+    if (x) {
+      score.updateOne({ name: uname }, { $inc: { points: 1 } }).then(() => {
+        console.log("Score Updated");
+      });
+    } else {
+      score.insertMany([
+        {
+          name: uname,
+          points: 1,
+        },
+      ]);
+    }
+  });
+}
+var scorebd;
+function getScoreBoard(ctx) {
+  scorebd = "🏆 LeaderBoard 🏆\n\n";
+  score
+    .find()
+    .sort({ points: "descending" })
+    .then((x) => {
+      x.forEach((y) => {
+        scorebd += `<b><i>${y.name}</i> - ${y.points}</b>\n`;
+      });
+
+      ctx.reply(scorebd, {
+        reply_markup: scoreKeyboard,
+        parse_mode: "HTML",
+      });
+    });
+}
