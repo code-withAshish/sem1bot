@@ -2,9 +2,9 @@ const { Bot, InlineKeyboard } = require("grammy");
 const user = require("./models/user");
 const score = require("./models/score");
 const mongoose = require("mongoose");
-const bot = new Bot("5081423704:AAGbnWcdekZnd8b11os3WrnCkMQsH997-so");
+const bot = new Bot(process.env.BOT_TOKEN);
 mongoose
-  .connect("mongodb://localhost:27017/codebot", {
+  .connect(process.env.dbURL, {
     useNewUrlParser: true,
   })
   .then(() => {
