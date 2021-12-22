@@ -9,7 +9,7 @@ mongoose
     useNewUrlParser: true,
   })
   .then((x) => {
-    console.log(x);
+    console.log("Connected to MongoDB");
   });
 const approveKeyboard = new InlineKeyboard()
   .text("Approve ✅", "yes")
@@ -20,7 +20,6 @@ const approveKeyboard = new InlineKeyboard()
 const scoreKeyboard = new InlineKeyboard()
   .text("Back", "back")
   .text("Send to channel", "send");
-var scorebd = "";
 
 bot.command("start", (ctx) => {
   ctx.reply(
@@ -89,10 +88,19 @@ bot.callbackQuery("no", async (ctx) => {
 });
 
 bot.callbackQuery("score", async (ctx) => {
-  ctx.reply(getScoreBoard(), {
-    reply_markup: scoreKeyboard,
-    parse_mode: "HTML",
-  });
+  var board = "🏆 LeaderBoard 🏆\n\n";
+  score
+    .find()
+    .sort({ points: "descending" })
+    .then((x) => {
+      x.forEach((e) => {
+        board += `<b><i>${e.name}</i> --- ${e.points}\n</b>`;
+      });
+      ctx.reply(board, {
+        reply_markup: scoreKeyboard,
+        parse_mode: "HTML",
+      });
+    });
 });
 
 bot.callbackQuery("back", (ctx) => {
@@ -100,9 +108,22 @@ bot.callbackQuery("back", (ctx) => {
 });
 
 bot.callbackQuery("send", (ctx) => {
-  console.log(scorebd);
-  ctx.api.sendMessage("@pcamcodehub", getScoreBoard());
+  var board = "🏆 LeaderBoard 🏆\n\n";
+  score
+    .find()
+    .sort({ points: "descending" })
+    .then((x) => {
+      x.forEach((e) => {
+        board += `<b><i>${e.name}</i> --- ${e.points}\n</b>`;
+      });
+      ctx.api.sendMessage("@pcamcodehub", board, {
+        reply_markup: scoreKeyboard,
+        parse_mode: "HTML",
+      });
+    });
 });
+
+function getScoreBoard() {}
 
 bot.catch((err) => {
   console.log(err);
@@ -124,17 +145,4 @@ function userScore(uname) {
       ]);
     }
   });
-}
-
-function getScoreBoard() {
-  scorebd = "🏆 LeaderBoard 🏆\n\n";
-  score
-    .find()
-    .sort({ points: "descending" })
-    .then((x) => {
-      x.forEach((y) => {
-        scorebd += `<b><i>${y.name}</i> - ${y.points}</b>\n`;
-      });
-    });
-  return scorebd;
 }
