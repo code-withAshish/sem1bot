@@ -59,7 +59,6 @@ bot.on("message:text", (ctx) => {
 });
 
 bot.callbackQuery("yes", async (ctx) => {
-  ctx.deleteMessage();
   user
     .findOneAndDelete({
       msgID: ctx.callbackQuery.message.message_id,
@@ -71,6 +70,7 @@ bot.callbackQuery("yes", async (ctx) => {
         parse_mode: "MarkdownV2",
       });
       userScore(x.uname);
+      ctx.api.deleteMessage("-1001515865371", x.msgID);
     });
 });
 
