@@ -88,7 +88,10 @@ bot.callbackQuery("no", async (ctx) => {
 });
 
 bot.callbackQuery("score", async (ctx) => {
-  getScoreBoard(ctx);
+  ctx.reply(getScoreBoard(), {
+    reply_markup: scoreKeyboard,
+    parse_mode: "HTML",
+  });
 });
 
 bot.callbackQuery("back", (ctx) => {
@@ -96,7 +99,8 @@ bot.callbackQuery("back", (ctx) => {
 });
 
 bot.callbackQuery("send", (ctx) => {
-  ctx.api.sendMessage("@pcamcodehub", board);
+  console.log(scorebd);
+  ctx.api.sendMessage("@pcamcodehub", getScoreBoard());
 });
 
 bot.catch((err) => {
@@ -121,7 +125,7 @@ function userScore(uname) {
   });
 }
 var scorebd;
-function getScoreBoard(ctx) {
+function getScoreBoard() {
   scorebd = "🏆 LeaderBoard 🏆\n\n";
   score
     .find()
@@ -130,10 +134,6 @@ function getScoreBoard(ctx) {
       x.forEach((y) => {
         scorebd += `<b><i>${y.name}</i> - ${y.points}</b>\n`;
       });
-
-      ctx.reply(scorebd, {
-        reply_markup: scoreKeyboard,
-        parse_mode: "HTML",
-      });
     });
+  return scorebd;
 }
