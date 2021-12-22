@@ -1,4 +1,5 @@
 const { Bot, InlineKeyboard } = require("grammy");
+require("dotenv").config();
 const user = require("./models/user");
 const score = require("./models/score");
 const mongoose = require("mongoose");
@@ -19,7 +20,7 @@ const approveKeyboard = new InlineKeyboard()
 const scoreKeyboard = new InlineKeyboard()
   .text("Back", "back")
   .text("Send to channel", "send");
-var board = "";
+var scorebd = "";
 
 bot.command("start", (ctx) => {
   ctx.reply(
@@ -124,7 +125,7 @@ function userScore(uname) {
     }
   });
 }
-var scorebd;
+
 function getScoreBoard() {
   scorebd = "🏆 LeaderBoard 🏆\n\n";
   score

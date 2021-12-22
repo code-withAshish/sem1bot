@@ -13,5 +13,7 @@
     "grammy": "^1.5.3",
     "mongoose": "^6.1.2"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "dotenv": "^10.0.0"
+  }
 }
