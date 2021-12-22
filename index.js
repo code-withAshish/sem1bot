@@ -8,8 +8,8 @@ mongoose
   .connect(process.env.dbURL, {
     useNewUrlParser: true,
   })
-  .then(() => {
-    console.log("Connected to Database");
+  .then((x) => {
+    console.log(x);
   });
 const approveKeyboard = new InlineKeyboard()
   .text("Approve ✅", "yes")
