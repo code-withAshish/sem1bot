@@ -37,7 +37,7 @@ bot.on("message:text", (ctx) => {
 
     ctx.reply("Please wait while we are checking your code...");
     ctx.api
-      .sendMessage("-1001515865371", ctx.message.text, {
+      .sendMessage("-1001515865371", "`" + ctx.message.text + "`", {
         reply_markup: approveKeyboard,
         parse_mode: "MarkdownV2",
       })
