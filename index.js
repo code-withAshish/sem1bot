@@ -84,7 +84,7 @@ bot.callbackQuery("no", async (ctx) => {
         x.uID,
         "Your program has some errors,so admins have rejected it\nPlease try again!!!"
       );
-      console.log("Code rejected");
+      console.log(x);
     });
 });
 
