@@ -66,7 +66,7 @@ bot.callbackQuery("yes", async (ctx) => {
     })
     .then((x) => {
       ctx.api.sendMessage(x.uID, "Your code has been approved!\n\n");
-      var msg = `${x.msg}\n` + `-by ${x.uname}`;
+      var msg = "`" + `${x.msg}\n` + `-by ${x.uname}` + "`";
       ctx.api.sendMessage("@pcamcodehub", msg, {
         parse_mode: "MarkdownV2",
       });
