@@ -124,8 +124,6 @@ bot.callbackQuery("send", (ctx) => {
     });
 });
 
-function getScoreBoard() {}
-
 bot.catch((err) => {
   console.log(err);
 });
