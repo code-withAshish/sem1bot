@@ -1,5 +1,6 @@
 const { Bot, InlineKeyboard } = require("grammy");
-require("dotenv").config();
+// require("dotenv").config();
+//use this for local development
 const user = require("./models/user");
 const score = require("./models/score");
 const mongoose = require("mongoose");
