@@ -37,10 +37,14 @@ bot.on("message:text", (ctx) => {
 
     ctx.reply("Please wait while we are checking your code...");
     ctx.api
-      .sendMessage("-1001515865371", "`" + ctx.message.text + "`", {
-        reply_markup: approveKeyboard,
-        parse_mode: "MarkdownV2",
-      })
+      .sendMessage(
+        "-1001515865371",
+        "`" + ctx.message.text + "\n" + `by- ${name}` + "`",
+        {
+          reply_markup: approveKeyboard,
+          parse_mode: "MarkdownV2",
+        }
+      )
       .then((e) => {
         user
           .insertMany([
