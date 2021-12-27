@@ -35,7 +35,7 @@ bot.on("message:text", (ctx) => {
         ? ctx.from.first_name
         : ctx.from.username;
 
-    ctx.reply("Please wait while we are checking your code...");
+    ctx.reply("Please wait while we are checking your code....");
     ctx.api
       .sendMessage(
         "-1001515865371",
